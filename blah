@@ -1,0 +1,61 @@
+// Code by AM. ArcGIS Queries using WCF services. (27 July 2016).
+    public Object getFSATasksRequest(String ArcGISurl, String LayerID, String wherecluase, Resources resources) {
+        String authResponse = "";
+        JSONObject jObj = null;
+        try {
+            DefaultHttpClient httpclient = new DefaultHttpClient();
+
+            HttpPost httppost = new HttpPost(mContext.getResources().getString(R.string.GET_FSATASKSDETAILS_URL));
+
+            JSONObject paramtrJsonStringFSA = new JSONObject();
+            paramtrJsonStringFSA.put("QueryString",wherecluase);
+            paramtrJsonStringFSA.put("URL",ArcGISurl);
+            paramtrJsonStringFSA.put("LayerIndex",LayerID);
+            paramtrJsonStringFSA.put("isGeometry","false");
+
+            //String inputToService = "{" + "\"URL\":\"" + ArcGISurl + "\"," + "\"LayerIndex\":\"" + LayerID + "\"" + "," + "\"QueryString\":\"" + wherecluase + "\"" + "}";
+
+            JSONObject base64DataJsonStringFSA = new JSONObject();
+
+            base64DataJsonStringFSA.put("Request", ""+RjilSecUtils.INSTANCE.Encrypt(paramtrJsonStringFSA.toString()));
+            //base64DataJsonStringFSA.put("Request", RjilSecUtils.INSTANCE.Encrypt(new JSONObject(inputToService).toString()));
+
+            //base64DataJsonStringFSA.put("Fields", base64DataFSA);
+            // Encoding the input end.
+
+            // mHttpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT,
+            // SOCKET_TIME_OUT_MAX);
+            httppost.setHeader("Content-Type", "application/json");
+            httppost.setHeader("X-API-Key",
+                    mContext.getResources().getString(R.string.URL_X_API_KEY));
+
+           /* // Code by AM. For Token Generation.
+            httppost.setHeader("SessionToken",
+                    PreferenceUtil.getInstance(mContext).getStringPreference("tokenIDGenerate").toString());
+            // Code by AM. For Token Generation End.*/
+
+            StringEntity input = new StringEntity(base64DataJsonStringFSA.toString());
+            httppost.setEntity(input);
+            HttpResponse hresponse = httpclient.execute(httppost);
+
+            HttpEntity responseEntity = hresponse.getEntity();
+            InputStream entityRes = responseEntity.getContent();
+
+            int i = 0;
+            StringBuilder sb = new StringBuilder();
+            while ((i = entityRes.read()) != -1) {
+                sb.append((char) i);
+            }
+            entityRes.close();
+            authResponse = sb.toString();
+           // authResponse = "{"Response":"shHOghz1spAZx9tr2E41ByXyPy0yQrdQNSMwXmjATSMws5fZ7zdlzAirNh3qSz8scQlg8Pnw2i3a9fM5jNatgoBwtLpRsZ8FGPkfIZjiMKWqRBqYertVYdXRFRlMQQWhiMU0lZuGen3RTKH46EANKU7abEFiuPbgI59iriZlMcN4aUCmbKZUi5b2QKEVG0c1bzyUq4JShnwJ9OZPO3jWq8Y95uRZSLy4NCX3BHoDHi8euPSDE83BjzWbDxPGHtKRGsop30u1scg3h7ZLBgMrxY9uqzViVvkDNmxPRuWvoIXnJ9gWZpjQUWdE2Rc1V8VaoG8hxSPSi5oCt3Cew=="}";
+            jObj = new JSONObject(authResponse);
+            httpclient.getConnectionManager().shutdown();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return jObj;
+    }
+    // Code end by AM (27 july 2016).
+
